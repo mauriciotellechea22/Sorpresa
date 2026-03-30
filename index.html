@@ -1404,12 +1404,16 @@
            SCROLL PARALLAX & GOLDEN THREAD
         ═══════════════════════════════════════════ */
         const parallaxElements = document.querySelectorAll('.princess-image-wrapper, .hero-image-container, .special-image-wrapper');
+        const threadContainer = document.querySelector('.golden-thread-container');
         const threadPath = document.getElementById('golden-thread-path');
 
         function initGoldenThread() {
-            const h = document.documentElement.scrollHeight;
+            // Explicitly sync container to full document height
+            const scrollH = document.documentElement.scrollHeight;
+            threadContainer.style.height = scrollH + 'px';
+            
             const heartOffset = 250;
-            const endY = h - heartOffset;
+            const endY = scrollH - heartOffset;
             
             // Draw straight line down, ending in an infinity heart shape perfectly sized
             const pathData = `M 20 0 L 20 ${endY} 
@@ -1418,25 +1422,25 @@
                               C 20 ${endY + 20}, 20 ${endY + 80}, 20 ${endY + 80}`;
             
             threadPath.setAttribute('d', pathData);
+            
+            // Important for Safari: explicit px strings
             const len = threadPath.getTotalLength();
-            threadPath.style.strokeDasharray = len;
-            threadPath.style.strokeDashoffset = len;
+            threadPath.style.strokeDasharray = len + 'px';
+            threadPath.style.strokeDashoffset = len + 'px';
         }
 
         window.addEventListener('resize', initGoldenThread);
-        
-        // Wait for images to load to calculate exact document height
         window.addEventListener('load', () => setTimeout(initGoldenThread, 500));
-        setTimeout(initGoldenThread, 1000); // Fallback
+        setTimeout(initGoldenThread, 1000); 
 
         window.addEventListener('scroll', () => {
             const scrollTop = window.scrollY;
             const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-            const progress = Math.min(scrollTop / docHeight, 1);
+            const progress = docHeight > 0 ? Math.min(scrollTop / docHeight, 1) : 0;
             
             if (threadPath.getAttribute('d')) {
                 const len = threadPath.getTotalLength();
-                threadPath.style.strokeDashoffset = len * (1 - progress);
+                threadPath.style.strokeDashoffset = (len * (1 - progress)) + 'px';
             }
 
             // Parallax offset

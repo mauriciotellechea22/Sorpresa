@@ -26,10 +26,19 @@
 
         body {
             font-family: 'Cormorant Garamond', serif;
-            background: #0a0612;
+            background: transparent;
             color: #e8dfd0;
             overflow-x: hidden;
             line-height: 1.8;
+        }
+
+        #dynamic-bg {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            z-index: -1;
+            transition: background 1.5s ease-in-out;
+            background: radial-gradient(circle at 50% 50%, #150d24 0%, #0a0612 100%);
         }
 
         /* ═══════════════════════════════════════════
@@ -288,6 +297,22 @@
             line-height: 2;
             color: rgba(232,223,208,0.85);
             font-style: italic;
+            min-height: 120px;
+        }
+
+        .typewriter-cursor {
+            display: inline-block;
+            width: 6px;
+            height: clamp(1.1rem, 2.5vw, 1.4rem);
+            background-color: rgba(232,223,208,0.6);
+            margin-left: 4px;
+            vertical-align: middle;
+            animation: blinkCursor 0.8s infinite;
+        }
+
+        @keyframes blinkCursor {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
         }
 
         /* ═══════════════════════════════════════════
@@ -640,6 +665,9 @@
 </head>
 <body>
 
+    <!-- Dynamic Background -->
+    <div id="dynamic-bg"></div>
+
     <!-- Scroll Progress -->
     <div class="scroll-progress" id="scrollProgress"></div>
 
@@ -681,10 +709,7 @@
             <img src="assets/Maira princesa disney.jpg" alt="Maira" class="hero-image" loading="eager">
         </div>
         <h1>Para Maira</h1>
-        <p class="hero-text">
-            Hay algo que me pasa con vos... y es que una sola palabra no me alcanza para explicar lo que sos. 
-            Porque en mi cabeza, vos no sos una sola historia. Sos todas.
-        </p>
+        <p class="hero-text" id="typewriter-text"></p>
     </section>
 
     <div class="sparkle-divider">
@@ -1123,6 +1148,10 @@
 
         introOverlay.addEventListener('click', () => {
             introOverlay.classList.add('hidden');
+            
+            // Start typewriter
+            setTimeout(typeWriter, 500);
+
             bgMusic.play().then(() => {
                 musicPlaying = true;
                 musicToggle.classList.add('playing');
@@ -1130,6 +1159,23 @@
                 console.log('Autoplay blocked:', err);
             });
         });
+
+        // Typewriter Effect Variables
+        const typeText = "Hay algo que me pasa con vos... y es que una sola palabra no me alcanza para explicar lo que sos. Porque en mi cabeza, vos no sos una sola historia. Sos todas.";
+        const typeEl = document.getElementById('typewriter-text');
+        let typeIdx = 0;
+        
+        function typeWriter() {
+            if (typeIdx < typeText.length) {
+                let char = typeText.charAt(typeIdx);
+                let delay = char === '.' ? 400 : (char === ',' ? 200 : Math.random() * 40 + 30);
+                typeEl.innerHTML = typeText.substring(0, typeIdx + 1) + '<span class="typewriter-cursor"></span>';
+                typeIdx++;
+                setTimeout(typeWriter, delay);
+            } else {
+                typeEl.innerHTML = typeText; // ends without cursor
+            }
+        }
 
         musicToggle.addEventListener('click', () => {
             if (musicPlaying) {
@@ -1165,15 +1211,55 @@
         });
 
         /* ═══════════════════════════════════════════
-           SCROLL PROGRESS BAR
+           DYNAMIC BACKGROUND COLORS
+        ═══════════════════════════════════════════ */
+        const sectionColors = {
+            'hero': 'radial-gradient(circle at 50% 50%, #150d24 0%, #0a0612 100%)',
+            'blancanieves': 'radial-gradient(circle at 50% 50%, #1c1808 0%, #0a0612 100%)',
+            'ariel': 'radial-gradient(circle at 50% 50%, #081a16 0%, #0a0612 100%)',
+            'cenicienta': 'radial-gradient(circle at 50% 50%, #081721 0%, #0a0612 100%)',
+            'mulan': 'radial-gradient(circle at 50% 50%, #210a0a 0%, #0a0612 100%)',
+            'jasmine': 'radial-gradient(circle at 50% 50%, #081a1a 0%, #0a0612 100%)',
+            'pocahontas': 'radial-gradient(circle at 50% 50%, #1a1208 0%, #0a0612 100%)',
+            'rapunzel': 'radial-gradient(circle at 50% 50%, #1c0a21 0%, #0a0612 100%)',
+            'tiana': 'radial-gradient(circle at 50% 50%, #0a1c0a 0%, #0a0612 100%)',
+            'merida': 'radial-gradient(circle at 50% 50%, #1f1005 0%, #0a0612 100%)',
+            'bella': 'radial-gradient(circle at 50% 50%, #1f1a05 0%, #0a0612 100%)',
+            'isabella': 'radial-gradient(circle at 50% 50%, #150d24 0%, #0a0612 100%)',
+            'juntos': 'radial-gradient(circle at 50% 50%, #1a0a14 0%, #0a0612 100%)'
+        };
+
+        const bgEl = document.getElementById('dynamic-bg');
+        const bgObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting && sectionColors[entry.target.id]) {
+                    bgEl.style.background = sectionColors[entry.target.id];
+                }
+            });
+        }, { threshold: 0.45 });
+
+        document.querySelectorAll('section').forEach(sec => bgObserver.observe(sec));
+
+        /* ═══════════════════════════════════════════
+           SCROLL PARALLAX & PROGRESS BAR
         ═══════════════════════════════════════════ */
         const scrollProgressBar = document.getElementById('scrollProgress');
+        const parallaxElements = document.querySelectorAll('.princess-image-wrapper, .hero-image-container, .special-image-wrapper');
 
         window.addEventListener('scroll', () => {
             const scrollTop = window.scrollY;
             const docHeight = document.documentElement.scrollHeight - window.innerHeight;
             const progress = (scrollTop / docHeight) * 100;
             scrollProgressBar.style.width = progress + '%';
+
+            // Parallax offset
+            parallaxElements.forEach(el => {
+                const rect = el.getBoundingClientRect();
+                if (rect.top < window.innerHeight && rect.bottom > 0) {
+                    const centerOffset = window.innerHeight/2 - (rect.top + rect.height/2);
+                    el.style.transform = `translateY(${centerOffset * 0.12}px)`;
+                }
+            });
         });
     </script>
 </body>

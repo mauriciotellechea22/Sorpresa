@@ -130,7 +130,7 @@
         }
 
         /* ═══════════════════════════════════════════
-           INTRO OVERLAY
+           INTRO OVERLAY & 3D STORYBOOK
         ═══════════════════════════════════════════ */
         .intro-overlay {
             position: fixed;
@@ -141,11 +141,11 @@
             z-index: 9999;
             background: radial-gradient(ellipse at center, #1a1030 0%, #0a0612 100%);
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: opacity 1s ease, visibility 1s ease;
+            transition: opacity 1.5s ease, visibility 1.5s ease;
+            perspective: 1500px;
         }
 
         .intro-overlay.hidden {
@@ -154,28 +154,93 @@
             pointer-events: none;
         }
 
-        .intro-overlay h2 {
+        .storybook {
+            position: relative;
+            width: 100%;
+            max-width: clamp(280px, 80vw, 400px);
+            aspect-ratio: 4/5;
+            height: auto;
+            transform-style: preserve-3d;
+            transition: transform 2s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-origin: left center;
+        }
+
+        .storybook.open {
+            transform: rotateY(-130deg);
+        }
+
+        .storybook-cover, .storybook-page {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            border-radius: 4px 18px 18px 4px;
+            backface-visibility: hidden;
+        }
+
+        .storybook-page {
+            background: linear-gradient(135deg, #150d24 0%, #0a0612 100%);
+            border: 2px solid #c8aa82;
+            transform: rotateY(180deg);
+            box-shadow: inset 4px 0 10px rgba(0,0,0,0.5), inset -2px 0 5px rgba(200,170,130,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(200,170,130,0.8);
             font-family: 'Great Vibes', cursive;
-            font-size: clamp(2.5rem, 6vw, 5rem);
+            font-size: clamp(2.5rem, 6vw, 4rem);
+            text-shadow: 0 0 15px rgba(200,170,130,0.4);
+            border-radius: 4px 18px 18px 4px;
+        }
+
+        .storybook-cover {
+            background: linear-gradient(135deg, #1f113a 0%, #0a0612 100%);
+            border: 2px solid #c8aa82;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: inset 4px 0 10px rgba(0,0,0,0.5), inset -2px 0 5px rgba(200,170,130,0.2), 15px 15px 40px rgba(0,0,0,0.8);
+            transform: translateZ(2px);
+            padding: 20px;
+            text-align: center;
+            z-index: 2;
+        }
+
+        .book-spine {
+            position: absolute;
+            left: -10px;
+            top: -2px;
+            bottom: -2px;
+            width: 20px;
+            background: linear-gradient(90deg, #0a0612 0%, #1f113a 50%, #0a0612 100%);
+            border-left: 2px solid #c8aa82;
+            border-right: 1px solid rgba(200,170,130,0.3);
+            border-radius: 4px 0 0 4px;
+            transform: translateZ(-1px);
+        }
+
+        .storybook-cover h2 {
+            font-family: 'Great Vibes', cursive;
+            font-size: clamp(3rem, 8vw, 4.5rem);
             color: #c8aa82;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
             animation: introGlow 2s ease-in-out infinite alternate;
         }
 
-        .intro-overlay p {
+        .storybook-cover p {
             font-family: 'Cormorant Garamond', serif;
             font-size: 1.1rem;
-            color: rgba(200,170,130,0.6);
+            color: rgba(200,170,130,0.7);
             letter-spacing: 3px;
             text-transform: uppercase;
             animation: introPulse 2s ease-in-out infinite;
         }
 
         .intro-sparkle {
-            width: 60px;
-            height: 60px;
-            margin-bottom: 30px;
-            animation: introSpin 4s linear infinite;
+            width: 50px;
+            height: 50px;
+            margin-bottom: 25px;
+            animation: introSpin 6s linear infinite;
         }
 
         @keyframes introGlow {
@@ -649,17 +714,78 @@
         }
 
         /* ═══════════════════════════════════════════
-           SCROLL PROGRESS BAR
+           GOLDEN THREAD SCROLL & MERIDA ARROW & SIGNATURE
         ═══════════════════════════════════════════ */
-        .scroll-progress {
-            position: fixed;
+        .golden-thread-container {
+            position: absolute;
             top: 0;
-            left: 0;
-            height: 3px;
-            background: linear-gradient(90deg, #c8aa82, #e6c84f, #c882d9, #5ec4a0);
-            z-index: 999;
-            width: 0%;
-            transition: width 0.1s linear;
+            right: clamp(5px, 2vw, 20px);
+            width: 40px;
+            height: 100%;
+            z-index: 998;
+            pointer-events: none;
+        }
+        
+        #golden-thread-path {
+            fill: none;
+            stroke: #e6c84f;
+            stroke-width: 2.5;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            filter: drop-shadow(0 0 8px rgba(230,200,79,0.9));
+        }
+
+        .arrow-streak {
+            position: absolute;
+            top: 35%;
+            left: -100vw;
+            width: 250px;
+            height: 4px;
+            background: linear-gradient(90deg, transparent, #ffb347, #fff, text-shadow);
+            box-shadow: 0 0 25px #ffb347, 0 0 50px #ffb347;
+            transform: rotate(-10deg);
+            opacity: 0;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .arrow-streak.shoot {
+            animation: arrowShoot 1s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+        }
+
+        @keyframes arrowShoot {
+            0% { left: -100vw; opacity: 0; }
+            30% { opacity: 1; }
+            100% { left: 100vw; opacity: 0; }
+        }
+
+        .signature-container {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 60px;
+        }
+
+        .signature-text {
+            font-family: 'Great Vibes', cursive;
+            font-size: clamp(2.5rem, 6vw, 4rem);
+            color: #e6c84f;
+            text-shadow: 0 0 25px rgba(230,200,79,0.5);
+            overflow: hidden;
+            display: inline-block;
+            width: 0;
+            white-space: nowrap;
+            border-right: 2px solid transparent;
+            padding-right: 10px;
+        }
+        
+        .signature-text.sign {
+            animation: signing 3.5s ease-out forwards;
+        }
+
+        @keyframes signing {
+            0% { width: 0; border-right-color: #e6c84f; }
+            95% { border-right-color: #e6c84f; }
+            100% { width: 100%; border-right-color: transparent; }
         }
     </style>
 </head>
@@ -668,8 +794,12 @@
     <!-- Dynamic Background -->
     <div id="dynamic-bg"></div>
 
-    <!-- Scroll Progress -->
-    <div class="scroll-progress" id="scrollProgress"></div>
+    <!-- Golden Thread Scroll -->
+    <div class="golden-thread-container">
+        <svg id="golden-thread-svg" width="100%" height="100%" preserveAspectRatio="xMidYMax meet">
+            <path id="golden-thread-path" d="" />
+        </svg>
+    </div>
 
     <!-- Particles Background -->
     <canvas id="particles-canvas"></canvas>
@@ -690,14 +820,20 @@
     </button>
 
     <!-- ═══════════════════════════════════════════
-         INTRO OVERLAY
+         INTRO OVERLAY & 3D STORYBOOK
     ═══════════════════════════════════════════ -->
     <div class="intro-overlay" id="introOverlay">
-        <svg class="intro-sparkle" viewBox="0 0 60 60" fill="none">
-            <path d="M30 0 L33 27 L60 30 L33 33 L30 60 L27 33 L0 30 L27 27 Z" fill="rgba(200,170,130,0.6)"/>
-        </svg>
-        <h2>Para Maira</h2>
-        <p>Tocá para comenzar ✨</p>
+        <div class="storybook" id="storybook">
+            <div class="storybook-cover">
+                <svg class="intro-sparkle" viewBox="0 0 60 60" fill="none">
+                    <path d="M30 0 L33 27 L60 30 L33 33 L30 60 L27 33 L0 30 L27 27 Z" fill="rgba(200,170,130,0.8)"/>
+                </svg>
+                <h2>Para Maira</h2>
+                <p>Tocar para abrir ✨</p>
+                <div class="book-spine"></div>
+            </div>
+            <div class="storybook-page">Érase una vez...</div>
+        </div>
     </div>
 
     <!-- ═══════════════════════════════════════════
@@ -928,6 +1064,7 @@
          MÉRIDA
     ═══════════════════════════════════════════ -->
     <section class="princess-section princess-merida" id="merida">
+        <div class="arrow-streak"></div>
         <div class="section-content">
             <div class="princess-image-wrapper">
                 <div class="princess-image-glow"></div>
@@ -1028,6 +1165,11 @@
                 Si esto es un cuento, no me importa cómo sea el final... me importa que sea con vos. 
                 Y con la princesa más importante de todas: Isabella.
             </p>
+            
+            <div class="signature-container">
+                <div class="signature-text" id="final-signature">Con amor, Mauricio</div>
+            </div>
+
             <div class="final-heart">❤️</div>
         </div>
     </section>
@@ -1147,10 +1289,13 @@
         bgMusic.volume = 0.6;
 
         introOverlay.addEventListener('click', () => {
-            introOverlay.classList.add('hidden');
+            const book = document.getElementById('storybook');
+            if (book) book.classList.add('open');
             
-            // Start typewriter
-            setTimeout(typeWriter, 500);
+            setTimeout(() => {
+                introOverlay.classList.add('hidden');
+                setTimeout(typeWriter, 500);
+            }, 1200);
 
             bgMusic.play().then(() => {
                 musicPlaying = true;
@@ -1232,8 +1377,23 @@
         const bgEl = document.getElementById('dynamic-bg');
         const bgObserver = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
-                if (entry.isIntersecting && sectionColors[entry.target.id]) {
-                    bgEl.style.background = sectionColors[entry.target.id];
+                if (entry.isIntersecting) {
+                    if (sectionColors[entry.target.id]) {
+                        bgEl.style.background = sectionColors[entry.target.id];
+                    }
+                    if (entry.target.id === 'merida') {
+                        const arrow = entry.target.querySelector('.arrow-streak');
+                        if (arrow && !arrow.classList.contains('shoot')) {
+                            setTimeout(() => arrow.classList.add('shoot'), 400);
+                        }
+                    }
+                    if (entry.target.id === 'juntos') {
+                        const sig = entry.target.querySelector('.signature-text');
+                        if (sig && !sig.classList.contains('sign')) {
+                            // Delay signature until they finish reading
+                            setTimeout(() => sig.classList.add('sign'), 1200);
+                        }
+                    }
                 }
             });
         }, { threshold: 0.45 });
@@ -1241,16 +1401,43 @@
         document.querySelectorAll('section').forEach(sec => bgObserver.observe(sec));
 
         /* ═══════════════════════════════════════════
-           SCROLL PARALLAX & PROGRESS BAR
+           SCROLL PARALLAX & GOLDEN THREAD
         ═══════════════════════════════════════════ */
-        const scrollProgressBar = document.getElementById('scrollProgress');
         const parallaxElements = document.querySelectorAll('.princess-image-wrapper, .hero-image-container, .special-image-wrapper');
+        const threadPath = document.getElementById('golden-thread-path');
+
+        function initGoldenThread() {
+            const h = document.documentElement.scrollHeight;
+            const heartOffset = 250;
+            const endY = h - heartOffset;
+            
+            // Draw straight line down, ending in an infinity heart shape perfectly sized
+            const pathData = `M 20 0 L 20 ${endY} 
+                              C 20 ${endY + 20}, 40 ${endY + 20}, 30 ${endY + 40} 
+                              C 20 ${endY + 60}, 0 ${endY + 60}, 10 ${endY + 40} 
+                              C 20 ${endY + 20}, 20 ${endY + 80}, 20 ${endY + 80}`;
+            
+            threadPath.setAttribute('d', pathData);
+            const len = threadPath.getTotalLength();
+            threadPath.style.strokeDasharray = len;
+            threadPath.style.strokeDashoffset = len;
+        }
+
+        window.addEventListener('resize', initGoldenThread);
+        
+        // Wait for images to load to calculate exact document height
+        window.addEventListener('load', () => setTimeout(initGoldenThread, 500));
+        setTimeout(initGoldenThread, 1000); // Fallback
 
         window.addEventListener('scroll', () => {
             const scrollTop = window.scrollY;
             const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-            const progress = (scrollTop / docHeight) * 100;
-            scrollProgressBar.style.width = progress + '%';
+            const progress = Math.min(scrollTop / docHeight, 1);
+            
+            if (threadPath.getAttribute('d')) {
+                const len = threadPath.getTotalLength();
+                threadPath.style.strokeDashoffset = len * (1 - progress);
+            }
 
             // Parallax offset
             parallaxElements.forEach(el => {

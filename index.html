@@ -714,25 +714,17 @@
         }
 
         /* ═══════════════════════════════════════════
-           GOLDEN THREAD SCROLL & MERIDA ARROW & SIGNATURE
+           SCROLL PROGRESS BAR & MERIDA ARROW & SIGNATURE
         ═══════════════════════════════════════════ */
-        .golden-thread-container {
-            position: absolute;
+        .scroll-progress {
+            position: fixed;
             top: 0;
-            right: clamp(5px, 2vw, 20px);
-            width: 40px;
-            height: 100%;
-            z-index: 998;
-            pointer-events: none;
-        }
-        
-        #golden-thread-path {
-            fill: none;
-            stroke: #e6c84f;
-            stroke-width: 2.5;
-            stroke-linecap: round;
-            stroke-linejoin: round;
-            filter: drop-shadow(0 0 8px rgba(230,200,79,0.9));
+            left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #c8aa82, #e6c84f, #c882d9, #5ec4a0);
+            z-index: 999;
+            width: 0%;
+            transition: width 0.1s linear;
         }
 
         .arrow-streak {
@@ -794,12 +786,8 @@
     <!-- Dynamic Background -->
     <div id="dynamic-bg"></div>
 
-    <!-- Golden Thread Scroll -->
-    <div class="golden-thread-container">
-        <svg id="golden-thread-svg" width="100%" height="100%" preserveAspectRatio="xMidYMax meet">
-            <path id="golden-thread-path" d="" />
-        </svg>
-    </div>
+    <!-- Scroll Progress -->
+    <div class="scroll-progress" id="scrollProgress"></div>
 
     <!-- Particles Background -->
     <canvas id="particles-canvas"></canvas>
@@ -1401,47 +1389,16 @@
         document.querySelectorAll('section').forEach(sec => bgObserver.observe(sec));
 
         /* ═══════════════════════════════════════════
-           SCROLL PARALLAX & GOLDEN THREAD
+           SCROLL PROGRESS BAR & PARALLAX
         ═══════════════════════════════════════════ */
         const parallaxElements = document.querySelectorAll('.princess-image-wrapper, .hero-image-container, .special-image-wrapper');
-        const threadContainer = document.querySelector('.golden-thread-container');
-        const threadPath = document.getElementById('golden-thread-path');
-
-        function initGoldenThread() {
-            // Explicitly sync container to full document height
-            const scrollH = document.documentElement.scrollHeight;
-            threadContainer.style.height = scrollH + 'px';
-            
-            const heartOffset = 250;
-            const endY = scrollH - heartOffset;
-            
-            // Draw straight line down, ending in an infinity heart shape perfectly sized
-            const pathData = `M 20 0 L 20 ${endY} 
-                              C 20 ${endY + 20}, 40 ${endY + 20}, 30 ${endY + 40} 
-                              C 20 ${endY + 60}, 0 ${endY + 60}, 10 ${endY + 40} 
-                              C 20 ${endY + 20}, 20 ${endY + 80}, 20 ${endY + 80}`;
-            
-            threadPath.setAttribute('d', pathData);
-            
-            // Important for Safari: explicit px strings
-            const len = threadPath.getTotalLength();
-            threadPath.style.strokeDasharray = len + 'px';
-            threadPath.style.strokeDashoffset = len + 'px';
-        }
-
-        window.addEventListener('resize', initGoldenThread);
-        window.addEventListener('load', () => setTimeout(initGoldenThread, 500));
-        setTimeout(initGoldenThread, 1000); 
+        const scrollProgressBar = document.getElementById('scrollProgress');
 
         window.addEventListener('scroll', () => {
             const scrollTop = window.scrollY;
             const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-            const progress = docHeight > 0 ? Math.min(scrollTop / docHeight, 1) : 0;
-            
-            if (threadPath.getAttribute('d')) {
-                const len = threadPath.getTotalLength();
-                threadPath.style.strokeDashoffset = (len * (1 - progress)) + 'px';
-            }
+            const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+            scrollProgressBar.style.width = progress + '%';
 
             // Parallax offset
             parallaxElements.forEach(el => {

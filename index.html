@@ -1083,23 +1083,29 @@
     <!-- Particles Background -->
     <canvas id="particles-canvas"></canvas>
 
-    <svg id="constellation" viewBox="0 0 800 400" preserveAspectRatio="xMidYMid meet">
-        <!-- M -->
-        <circle cx="200" cy="250" r="3" style="animation-delay: 0s" /> 
-        <circle cx="250" cy="100" r="3" style="animation-delay: 1s" />
-        <circle cx="300" cy="200" r="3" style="animation-delay: 2s" /> 
-        <circle cx="350" cy="100" r="3" style="animation-delay: 0.5s" />
-        <circle cx="400" cy="250" r="3" style="animation-delay: 1.5s" />
-        <path d="M200 250 L250 100 L300 200 L350 100 L400 250" />
-        <!-- & -->
-        <circle cx="450" cy="175" r="2" />
-        <!-- M -->
-        <circle cx="500" cy="250" r="3" style="animation-delay: 2s" /> 
-        <circle cx="550" cy="100" r="3" style="animation-delay: 0.2s" />
-        <circle cx="600" cy="200" r="3" style="animation-delay: 1.1s" /> 
-        <circle cx="650" cy="100" r="3" style="animation-delay: 0.8s" />
-        <circle cx="700" cy="250" r="3" style="animation-delay: 2.5s" />
-        <path d="M500 250 L550 100 L600 200 L650 100 L700 250" />
+    <svg id="constellation" viewBox="0 0 400 800" preserveAspectRatio="xMidYMid meet">
+        <!-- Top M -->
+        <circle cx="100" cy="250" r="2.5" style="animation-delay: 0s" /> 
+        <circle cx="150" cy="150" r="2.5" style="animation-delay: 1s" />
+        <circle cx="200" cy="200" r="2.5" style="animation-delay: 2s" /> 
+        <circle cx="250" cy="150" r="2.5" style="animation-delay: 0.5s" />
+        <circle cx="300" cy="250" r="2.5" style="animation-delay: 1.5s" />
+        <path d="M100 250 L150 150 L200 200 L250 150 L300 250" />
+        
+        <!-- Heart in middle (represents &) -->
+        <circle cx="200" cy="450" r="2" style="animation-delay: 0.3s"/>
+        <circle cx="150" cy="350" r="2" style="animation-delay: 0.7s"/>
+        <circle cx="250" cy="350" r="2" style="animation-delay: 1.2s"/>
+        <circle cx="200" cy="380" r="1.5" style="animation-delay: 0.5s"/>
+        <path d="M200 450 L150 350 Q150 300, 200 380 Q250 300, 250 350 L200 450" />
+
+        <!-- Bottom M -->
+        <circle cx="100" cy="650" r="2.5" style="animation-delay: 2s" /> 
+        <circle cx="150" cy="550" r="2.5" style="animation-delay: 0.2s" />
+        <circle cx="200" cy="600" r="2.5" style="animation-delay: 1.1s" /> 
+        <circle cx="250" cy="550" r="2.5" style="animation-delay: 0.8s" />
+        <circle cx="300" cy="650" r="2.5" style="animation-delay: 2.5s" />
+        <path d="M100 650 L150 550 L200 600 L250 550 L300 650" />
     </svg>
 
     <!-- Background Music -->
@@ -1489,10 +1495,12 @@
     </div>
 
     <!-- Hidden PDF Template -->
-    <div id="pdf-content" style="display:none; padding:40px; background:#f9f5eb; color:#222; font-family: 'Cormorant Garamond', serif;">
-        <h1 style="font-family: 'Great Vibes', cursive; color:#821414; text-align:center; font-size:4rem; margin-bottom: 30px;">Para Maira</h1>
-        <div id="pdf-text-container" style="font-size: 1.4rem; line-height: 1.8; text-align:justify; margin: 0 auto; max-width: 800px;"></div>
-        <div style="text-align:right; font-family: 'Great Vibes', cursive; font-size: 3rem; color:#821414; margin-top:50px;">Con amor, Mauricio</div>
+    <div id="pdf-wrapper" style="position: absolute; top: -20000px; left: 0; width: 800px; z-index:-99;">
+        <div id="pdf-content" style="padding:40px; background:#f9f5eb; color:#222; font-family: 'Cormorant Garamond', serif;">
+            <h1 style="font-family: 'Great Vibes', cursive; color:#821414; text-align:center; font-size:4rem; margin-bottom: 30px;">Para Maira</h1>
+            <div id="pdf-text-container" style="font-size: 1.4rem; line-height: 1.8; text-align:justify; margin: 0 auto; max-width: 800px;"></div>
+            <div style="text-align:right; font-family: 'Great Vibes', cursive; font-size: 3rem; color:#821414; margin-top:50px;">Con amor, Mauricio</div>
+        </div>
     </div>
 
     <script>
@@ -1903,19 +1911,16 @@
         if (btnPdf) {
             btnPdf.addEventListener('click', () => {
                 const element = document.getElementById('pdf-content');
-                element.style.display = 'block';
-                
+                // Optimizamos para forzar el render en una caja virtual A4
                 const opt = {
-                    margin:       1,
+                    margin:       0.5,
                     filename:     'Para_Maira_Nuestra_Historia.pdf',
                     image:        { type: 'jpeg', quality: 0.98 },
-                    html2canvas:  { scale: 2 },
-                    jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+                    html2canvas:  { scale: 2, useCORS: true, windowWidth: 800 },
+                    jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
                 };
 
-                html2pdf().set(opt).from(element).save().then(() => {
-                    element.style.display = 'none';
-                });
+                html2pdf().set(opt).from(element).save();
             });
         }
 

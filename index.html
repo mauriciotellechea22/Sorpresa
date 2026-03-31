@@ -5,10 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Para Maira ✨</title>
     <meta name="description" content="Una carta de amor hecha página web, para la mujer que es todas las princesas juntas.">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Great+Vibes&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         /* ═══════════════════════════════════════════
            RESET & BASE
@@ -1483,9 +1480,9 @@
     </div> <!-- END content-wrapper -->
 
     <!-- PDF Logic Button at the end of the text -->
-    <div style="text-align: center; margin-bottom: 50px; position:relative; z-index:10;">
-        <button id="btn-download-pdf" style="background:transparent; border: 1px solid #c8aa82; color: #c8aa82; padding: 10px 20px; font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; cursor: pointer; border-radius: 5px; transition: 0.3s; margin-right: 15px;">Descargar Pergamino</button>
-        <button id="btn-seal-envelope" style="background: rgba(196,41,54,0.8); border: 1px solid #c42936; color: white; padding: 10px 20px; font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; cursor: pointer; border-radius: 5px; transition: 0.3s;">Guardar en el corazón 💌</button>
+    <div style="text-align: center; margin-bottom: 50px; position:relative; z-index:10; padding: 0 10px;">
+        <button id="btn-download-pdf" style="background:transparent; border: 1px solid #c8aa82; color: #c8aa82; padding: 10px 16px; font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; cursor: pointer; border-radius: 5px; transition: 0.3s; margin-right: 10px; margin-bottom: 15px;">Guardar Carta (Texto) 💌</button>
+        <button id="btn-seal-envelope" style="background: rgba(196,41,54,0.8); border: 1px solid #c42936; color: white; padding: 10px 16px; font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; cursor: pointer; border-radius: 5px; transition: 0.3s; margin-bottom: 15px;">Guardar en el corazón ❤️</button>
     </div>
 
     <div id="envelope-container">
@@ -1494,14 +1491,7 @@
         <button id="btn-reopen">Volver a abrir ❤️</button>
     </div>
 
-    <!-- Hidden PDF Template -->
-    <div id="pdf-wrapper" style="position: absolute; top: -20000px; left: 0; width: 800px; z-index:-99;">
-        <div id="pdf-content" style="padding:40px; background:#f9f5eb; color:#222; font-family: 'Cormorant Garamond', serif;">
-            <h1 style="font-family: 'Great Vibes', cursive; color:#821414; text-align:center; font-size:4rem; margin-bottom: 30px;">Para Maira</h1>
-            <div id="pdf-text-container" style="font-size: 1.4rem; line-height: 1.8; text-align:justify; margin: 0 auto; max-width: 800px;"></div>
-            <div style="text-align:right; font-family: 'Great Vibes', cursive; font-size: 3rem; color:#821414; margin-top:50px;">Con amor, Mauricio</div>
-        </div>
-    </div>
+    <!-- El PDF Wrapper ha sido removido. Usaremos Native API Share. -->
 
     <script>
         /* ═══════════════════════════════════════════
@@ -1894,33 +1884,33 @@
             } else {
                 document.body.classList.add('night-mode');
             }
-
-            // PDF Assembly (Extract all .text-content into #pdf-text-container)
-            const pdfContainer = document.getElementById('pdf-text-container');
-            const sections = document.querySelectorAll('.text-content');
-            sections.forEach(sec => {
-                const p = document.createElement('p');
-                p.innerHTML = sec.innerHTML;
-                p.style.marginBottom = '25px';
-                pdfContainer.appendChild(p);
-            });
         });
 
-        // PDF Download Trigger
+        // Native Share Text Trigger (Reemplazo del PDF que fallaba en Safari/iOS)
         const btnPdf = document.getElementById('btn-download-pdf');
         if (btnPdf) {
-            btnPdf.addEventListener('click', () => {
-                const element = document.getElementById('pdf-content');
-                // Optimizamos para forzar el render en una caja virtual A4
-                const opt = {
-                    margin:       0.5,
-                    filename:     'Para_Maira_Nuestra_Historia.pdf',
-                    image:        { type: 'jpeg', quality: 0.98 },
-                    html2canvas:  { scale: 2, useCORS: true, windowWidth: 800 },
-                    jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
-                };
+            btnPdf.addEventListener('click', async () => {
+                const title = "Para Maira ✨";
+                let fullText = "PARA MAIRA\n\n";
+                
+                document.querySelectorAll('.text-content').forEach(sec => {
+                    fullText += sec.innerText.trim() + "\n\n";
+                });
+                fullText += "Con amor, Mauricio.";
 
-                html2pdf().set(opt).from(element).save();
+                if (navigator.share) {
+                    try {
+                        await navigator.share({
+                            title: title,
+                            text: fullText
+                        });
+                    } catch (err) {
+                        console.log("No se pudo compartir", err);
+                    }
+                } else {
+                    navigator.clipboard.writeText(fullText);
+                    alert("¡El texto de tu carta fue copiado al portapapeles! 💌");
+                }
             });
         }
 
